@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tierlist Friday 🏆</title>
+    <meta name="description" content="Create and share epic tier lists with your Discord crew every Friday.">
+    
+    <!-- Open Graph for Discord link previews -->
+    <meta property="og:title" content="Tierlist Friday 🏆">
+    <meta property="og:description" content="Drop your hot takes — rank everything from S to F.">
+    <meta property="og:type" content="website">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CDN Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ==================== ORGANIZER VIEW ==================== -->
+    <div id="organizer-view" class="view">
+        <header class="org-header">
+            <div class="logo-block">
+                <span class="logo-icon">🏆</span>
+                <h1>TIERLIST<br><span class="logo-accent">FRIDAY</span></h1>
+            </div>
+            <p class="tagline">Build a topic. Generate a link. Let the debates begin.</p>
+        </header>
+
+        <main class="org-main">
+            <!-- Webhook Config -->
+            <section class="org-section" id="webhook-section">
+                <div class="section-header">
+                    <span class="section-number">01</span>
+                    <h2>Discord Webhook</h2>
+                    <span class="section-optional">Optional</span>
+                </div>
+                <p class="section-desc">Paste your channel's webhook URL to enable sharing directly to Discord. Leave blank to use without Discord — everyone can still download their tier list as an image.</p>
+                <div class="input-row">
+                    <input type="url" id="webhook-url" placeholder="https://discord.com/api/webhooks/..." autocomplete="off">
+                    <button id="test-webhook-btn" class="btn btn-secondary" title="Send a test message">Test</button>
+                </div>
+                <div id="webhook-status" class="status-msg"></div>
+            </section>
+
+            <!-- Topic Builder -->
+            <section class="org-section" id="topic-section">
+                <div class="section-header">
+                    <span class="section-number">02</span>
+                    <h2>Topic</h2>
+                </div>
+                <input type="text" id="topic-name" placeholder='e.g. "Fast Food Chains"' maxlength="80" autocomplete="off">
+            </section>
+
+            <!-- Item Builder -->
+            <section class="org-section" id="items-section">
+                <div class="section-header">
+                    <span class="section-number">03</span>
+                    <h2>Items to Rank</h2>
+                </div>
+                <p class="section-desc">Add the items everyone will be ranking. Image URLs are optional.</p>
+                
+                <div id="item-list" class="item-list"></div>
+                
+                <div class="add-item-row">
+                    <input type="text" id="new-item-name" placeholder="Item name" maxlength="60" autocomplete="off">
+                    <input type="url" id="new-item-image" placeholder="Image URL (optional)" autocomplete="off">
+                    <button id="add-item-btn" class="btn btn-primary">+ Add</button>
+                </div>
+                <div class="bulk-add-section">
+                    <button id="bulk-add-toggle" class="btn btn-ghost">Bulk Add (paste a list)</button>
+                    <div id="bulk-add-area" class="hidden">
+                        <textarea id="bulk-add-text" rows="6" placeholder="One item per line&#10;McDonald's&#10;Burger King&#10;Wendy's&#10;Taco Bell"></textarea>
+                        <button id="bulk-add-btn" class="btn btn-secondary">Add All</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Generate Link -->
+            <section class="org-section" id="generate-section">
+                <div class="section-header">
+                    <span class="section-number">04</span>
+                    <h2>Generate Link</h2>
+                </div>
+                <button id="generate-link-btn" class="btn btn-hero">🔗 Generate Tierlist Friday Link</button>
+                <div id="generated-link-area" class="hidden">
+                    <div class="generated-link-row">
+                        <input type="text" id="generated-link" readonly>
+                        <button id="copy-link-btn" class="btn btn-primary">Copy</button>
+                    </div>
+                    <button id="open-tierlist-btn" class="btn btn-secondary" style="margin-top: var(--space-sm); width: 100%;">🎯 Open Tier List</button>
+                </div>
+                <div id="generate-status" class="status-msg"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ==================== PARTICIPANT VIEW ==================== -->
+    <div id="participant-view" class="view hidden">
+        <header class="tier-header">
+            <div class="tier-header-top">
+                <div class="logo-block logo-block-sm">
+                    <span class="logo-icon">🏆</span>
+                    <h1>TIERLIST FRIDAY</h1>
+                </div>
+                <a href="#" id="create-new-btn" class="btn btn-ghost btn-sm">+ Create New</a>
+            </div>
+            <h2 id="tier-topic-title" class="topic-title"></h2>
+        </header>
+
+        <!-- Name input -->
+        <div class="name-bar">
+            <label for="display-name">Your Name</label>
+            <input type="text" id="display-name" placeholder="Enter your name" maxlength="32" autocomplete="off">
+        </div>
+
+        <main class="tier-main">
+            <!-- Tier Rows -->
+            <div id="tier-container" class="tier-container">
+                <!-- Capture zone for image export starts here -->
+                <div id="tier-capture-zone">
+                    <div id="capture-header" class="capture-header hidden">
+                        <span class="capture-logo">🏆 TIERLIST FRIDAY</span>
+                        <span id="capture-topic" class="capture-topic"></span>
+                        <span id="capture-name" class="capture-name"></span>
+                    </div>
+                    <div class="tier-row" data-tier="S">
+                        <div class="tier-label tier-s">S</div>
+                        <div class="tier-items" id="tier-s"></div>
+                    </div>
+                    <div class="tier-row" data-tier="A">
+                        <div class="tier-label tier-a">A</div>
+                        <div class="tier-items" id="tier-a"></div>
+                    </div>
+                    <div class="tier-row" data-tier="B">
+                        <div class="tier-label tier-b">B</div>
+                        <div class="tier-items" id="tier-b"></div>
+                    </div>
+                    <div class="tier-row" data-tier="C">
+                        <div class="tier-label tier-c">C</div>
+                        <div class="tier-items" id="tier-c"></div>
+                    </div>
+                    <div class="tier-row" data-tier="D">
+                        <div class="tier-label tier-d">D</div>
+                        <div class="tier-items" id="tier-d"></div>
+                    </div>
+                    <div class="tier-row" data-tier="F">
+                        <div class="tier-label tier-f">F</div>
+                        <div class="tier-items" id="tier-f"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unranked Pool -->
+            <section class="pool-section">
+                <div class="pool-header">
+                    <h3>Unranked</h3>
+                    <button id="add-custom-btn" class="btn btn-ghost btn-sm">+ Add Custom Item</button>
+                </div>
+                <div id="custom-item-form" class="custom-item-form hidden">
+                    <input type="text" id="custom-item-name" placeholder="Item name" maxlength="60" autocomplete="off">
+                    <input type="url" id="custom-item-image" placeholder="Image URL (optional)" autocomplete="off">
+                    <button id="custom-item-add-btn" class="btn btn-secondary btn-sm">Add</button>
+                    <button id="custom-item-cancel-btn" class="btn btn-ghost btn-sm">Cancel</button>
+                </div>
+                <div id="item-pool" class="item-pool"></div>
+            </section>
+        </main>
+
+        <!-- Share Bar -->
+        <div class="share-bar">
+            <div id="share-status" class="status-msg"></div>
+            <div class="share-buttons">
+                <button id="download-btn" class="btn btn-secondary btn-share">
+                    <span class="share-btn-text">💾 Download Image</span>
+                </button>
+                <button id="share-btn" class="btn btn-hero btn-share">
+                    <span class="share-btn-text">🚀 Share to Discord</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
