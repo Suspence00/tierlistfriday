@@ -108,6 +108,7 @@ export function createItemElement(item) {
         el.dataset.img = item.img;
         const img = document.createElement('img');
         img.className = 'tier-item-img';
+        img.crossOrigin = 'anonymous'; // CRITICAL for html2canvas to work with external images
         img.src = item.img;
         img.alt = item.name;
         img.draggable = false;
