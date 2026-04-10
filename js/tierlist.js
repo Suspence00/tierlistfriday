@@ -59,6 +59,9 @@ export function initTierList(data) {
 
     // Custom item UI
     bindCustomItemEvents();
+
+    // Tap to move functionality
+    bindTapToMove();
 }
 
 function initSortable() {
@@ -182,4 +185,46 @@ export function getTierListState() {
         unranked,
         webhook: sessionData.w,
     };
+}
+
+let selectedItemForMove = null;
+
+function bindTapToMove() {
+    document.addEventListener('click', (e) => {
+        // 1. Click on item
+        const itemClicked = e.target.closest('.tier-item');
+        if (itemClicked) {
+            if (selectedItemForMove === itemClicked) {
+                // Deselect current item
+                itemClicked.classList.remove('selected-for-move');
+                selectedItemForMove = null;
+            } else {
+                // Select new item
+                if (selectedItemForMove) {
+                    selectedItemForMove.classList.remove('selected-for-move');
+                }
+                itemClicked.classList.add('selected-for-move');
+                selectedItemForMove = itemClicked;
+            }
+            return;
+        }
+
+        // 2. Click on destination with an active item
+        if (selectedItemForMove) {
+            const tierRow = e.target.closest('.tier-row');
+            const pool = e.target.closest('.pool-section'); // More forgiving hit area for the pool
+
+            let targetContainer = null;
+            if (tierRow) targetContainer = tierRow.querySelector('.tier-items');
+            else if (pool) targetContainer = pool.querySelector('.item-pool');
+
+            if (targetContainer) {
+                targetContainer.appendChild(selectedItemForMove);
+            }
+            
+            // Clear selection
+            selectedItemForMove.classList.remove('selected-for-move');
+            selectedItemForMove = null;
+        }
+    });
 }

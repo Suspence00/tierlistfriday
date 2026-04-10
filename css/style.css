@@ -650,6 +650,13 @@ textarea {
     cursor: grabbing;
 }
 
+.tier-item.selected-for-move {
+    border-color: var(--accent);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(232, 87, 58, 0.4);
+    z-index: 10;
+}
+
 .tier-item-img {
     width: 98px;
     height: 72px;
@@ -899,8 +906,21 @@ textarea {
         min-width: 100%;
     }
 
-    .share-bar .btn-hero {
-        min-width: unset;
-        flex: 1;
+    .share-bar {
+        padding: var(--space-md);
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+
+    .share-buttons {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+        gap: var(--space-sm);
+        align-items: stretch;
+    }
+
+    .btn-share {
+        min-width: 100%;
     }
 }
