@@ -11,7 +11,7 @@ let eventsBound = false;
  * Initialize the organizer view.
  */
 export function initOrganizer() {
-    loadWebhook();
+    loadSettings();
     bindEvents();
     renderItems();
     updateItemCount();
@@ -20,9 +20,10 @@ export function initOrganizer() {
 /**
  * Load existing data into the organizer to edit it.
  */
-export function loadIntoOrganizer(topic, initialItems) {
+export function loadIntoOrganizer(topic, initialItems, proxy) {
     $('#topic-name').value = topic;
     items = initialItems;
+    if (proxy) $('#proxy-url').value = proxy;
     
     // Make sure events are bound if we skipped initOrganizer (i.e. direct link to tier list)
     bindEvents();
@@ -36,27 +37,30 @@ export function loadIntoOrganizer(topic, initialItems) {
     window.location.hash = ''; // Clear hash so reload doesn't recreate tier list
 }
 
-function loadWebhook() {
-    const saved = localStorage.getItem('tl_webhook');
-    if (saved) {
-        $('#webhook-url').value = saved;
-    }
+function loadSettings() {
+    const savedWebhook = localStorage.getItem('tl_webhook');
+    if (savedWebhook) $('#webhook-url').value = savedWebhook;
+    
+    const savedProxy = localStorage.getItem('tl_proxy');
+    if (savedProxy) $('#proxy-url').value = savedProxy;
 }
 
-function saveWebhook() {
-    const url = $('#webhook-url').value.trim();
-    if (url) {
-        localStorage.setItem('tl_webhook', url);
-    }
+function saveSettings() {
+    const webhook = $('#webhook-url').value.trim();
+    if (webhook) localStorage.setItem('tl_webhook', webhook);
+    
+    const proxy = $('#proxy-url').value.trim();
+    if (proxy) localStorage.setItem('tl_proxy', proxy);
 }
 
 function bindEvents() {
     if (eventsBound) return;
     eventsBound = true;
 
-    // Webhook test
+    // Settings
     $('#test-webhook-btn').addEventListener('click', testWebhook);
-    $('#webhook-url').addEventListener('change', saveWebhook);
+    $('#webhook-url').addEventListener('change', saveSettings);
+    $('#proxy-url').addEventListener('change', saveSettings);
 
     // Add item
     $('#add-item-btn').addEventListener('click', addItem);
@@ -88,7 +92,7 @@ async function testWebhook() {
         return;
     }
 
-    saveWebhook();
+    saveSettings();
     status.textContent = 'Sending test...';
     status.className = 'status-msg';
 
@@ -416,10 +420,11 @@ function generateLink() {
         return;
     }
 
-    if (webhook) saveWebhook();
+    saveSettings();
 
     const sessionData = {
         w: webhook || '',
+        p: $('#proxy-url').value.trim() || '',
         t: topic,
         i: items.map(item => item.img ? { n: item.name, g: item.img } : { n: item.name }),
     };

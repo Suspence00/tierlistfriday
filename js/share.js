@@ -68,6 +68,61 @@ async function generateImage(state) {
     captureTopic.textContent = state.topic;
     captureName.textContent = state.name;
 
+    // --- CORS CLEANING PHASE ---
+    const imageElements = Array.from(document.querySelectorAll('#tier-capture-zone .tier-item-img'));
+    const originalSrcs = imageElements.map(img => img.src);
+    let proxyBase = (state.proxy || '').trim();
+
+    // Fallback: Check localStorage if the session link is old/doesn't have the proxy
+    if (!proxyBase) {
+        proxyBase = (localStorage.getItem('tl_proxy') || '').trim();
+        if (proxyBase) console.log('Using local proxy fallback:', proxyBase);
+    }
+
+    if (proxyBase) {
+        // Ensure proxy has a protocol
+        if (proxyBase && !proxyBase.startsWith('http')) {
+            proxyBase = 'https://' + proxyBase;
+        }
+
+        const cleanPromises = imageElements.map(async (img, idx) => {
+            if (img.src.startsWith('data:')) return true;
+
+            try {
+                const urlObj = new URL(proxyBase);
+                urlObj.searchParams.set('url', originalSrcs[idx]);
+                const proxyUrl = urlObj.toString();
+                
+                const resp = await fetch(proxyUrl);
+                if (!resp.ok) throw new Error(`Status ${resp.status}`);
+                
+                const blob = await resp.blob();
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+                
+                return new Promise((resolve) => {
+                    img.onload = () => resolve(true);
+                    img.onerror = () => resolve(false);
+                    img.src = base64;
+                });
+            } catch (e) {
+                console.error(`Proxy failed for item ${idx}:`, e);
+                return false;
+            }
+        });
+
+        const results = await Promise.all(cleanPromises);
+        const successCount = results.filter(Boolean).length;
+        showToast(`Ready! ${successCount}/${imageElements.length} images cleaned via proxy.`, 'info', 2000);
+        
+        // Force a double-tick wait for the layout engine to catch up
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    }
+
     // Wait a tick for render
     await new Promise(r => setTimeout(r, 100));
 
@@ -77,11 +132,17 @@ async function generateImage(state) {
         backgroundColor: '#111114',
         scale: 2,
         useCORS: true,
-        allowTaint: true,
         logging: false,
         width: captureZone.scrollWidth,
         height: captureZone.scrollHeight,
     });
+
+    // --- RESTORE PHASE ---
+    if (proxyBase) {
+        imageElements.forEach((img, i) => {
+            img.src = originalSrcs[i];
+        });
+    }
 
     // Hide capture header again
     captureHeader.classList.add('hidden');

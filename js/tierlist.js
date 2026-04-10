@@ -40,7 +40,7 @@ export function initTierList(data) {
         
         // Dynamically import organizer to avoid circular dependency issues
         import('./organizer.js').then(module => {
-            module.loadIntoOrganizer(state.topic, allItems);
+            module.loadIntoOrganizer(state.topic, allItems, state.proxy);
         });
     });
 
@@ -209,6 +209,7 @@ export function getTierListState() {
         tiers,
         unranked,
         webhook: sessionData.w,
+        proxy: sessionData.p,
     };
 }
 

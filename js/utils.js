@@ -109,27 +109,18 @@ export function createItemElement(item) {
         const img = document.createElement('img');
         img.className = 'tier-item-img';
         
-        const isDataUri = item.img.startsWith('data:');
-        if (!isDataUri) img.crossOrigin = 'anonymous';
-        
-        // Use proxy to ensure we get CORS headers so html2canvas doesn't fail
-        // wsrv.nl is a lightning fast Cloudflare-backed image proxy specifically for cases like this
-        img.src = isDataUri ? item.img : 'https://wsrv.nl/?url=' + encodeURIComponent(item.img);
+        // Use a simple <img> tag for UI stability. 
+        // Note: crossOrigin is NOT set here to ensure the image "loads fine" in the builder.
+        // We handle CORS-cleaning only during the export phase in share.js.
+        img.src = item.img;
         img.alt = item.name;
         img.draggable = false;
         
         img.onerror = () => {
-            if (!isDataUri && !img.dataset.failedProxy) {
-                // If proxy fails, try direct as a fallback (though html2canvas might still fail later)
-                img.dataset.failedProxy = 'true';
-                img.removeAttribute('crossOrigin');
-                img.src = item.img;
-            } else {
-                // If direct fails too, convert to text-only
-                img.remove();
-                el.classList.add('tier-item--text-only');
-                el.style.borderLeftColor = stringToColor(item.name);
-            }
+            // If it fails entirely, convert to text-only
+            img.remove();
+            el.classList.add('tier-item--text-only');
+            el.style.borderLeftColor = stringToColor(item.name);
         };
         el.appendChild(img);
     } else {

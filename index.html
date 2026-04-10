@@ -49,6 +49,10 @@
                     <input type="url" id="webhook-url" placeholder="https://discord.com/api/webhooks/..." autocomplete="off">
                     <button id="test-webhook-btn" class="btn btn-secondary" title="Send a test message">Test</button>
                 </div>
+                <div style="margin-top: var(--space-sm);">
+                    <label for="proxy-url" style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; font-weight: 600;">Custom CORS Proxy (Optional - for blocked images)</label>
+                    <input type="url" id="proxy-url" placeholder="https://your-worker.workers.dev" autocomplete="off">
+                </div>
                 <div id="webhook-status" class="status-msg"></div>
             </section>
 
