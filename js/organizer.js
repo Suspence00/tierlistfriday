@@ -13,6 +13,22 @@ export function initOrganizer() {
     loadWebhook();
     bindEvents();
     renderItems();
+    updateItemCount();
+}
+
+/**
+ * Load existing data into the organizer to edit it.
+ */
+export function loadIntoOrganizer(topic, initialItems) {
+    $('#topic-name').value = topic;
+    items = initialItems;
+    renderItems();
+    updateItemCount();
+
+    // Switch views
+    document.getElementById('organizer-view').classList.remove('hidden');
+    document.getElementById('participant-view').classList.add('hidden');
+    window.location.hash = ''; // Clear hash so reload doesn't recreate tier list
 }
 
 function loadWebhook() {

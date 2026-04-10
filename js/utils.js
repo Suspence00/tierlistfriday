@@ -108,15 +108,27 @@ export function createItemElement(item) {
         el.dataset.img = item.img;
         const img = document.createElement('img');
         img.className = 'tier-item-img';
-        img.crossOrigin = 'anonymous'; // CRITICAL for html2canvas to work with external images
-        img.src = item.img;
+        
+        const isDataUri = item.img.startsWith('data:');
+        if (!isDataUri) img.crossOrigin = 'anonymous';
+        
+        // Use proxy to ensure we get CORS headers so html2canvas doesn't fail
+        img.src = isDataUri ? item.img : 'https://corsproxy.io/?' + encodeURIComponent(item.img);
         img.alt = item.name;
         img.draggable = false;
+        
         img.onerror = () => {
-            // If image fails, convert to text-only
-            img.remove();
-            el.classList.add('tier-item--text-only');
-            el.style.borderLeftColor = stringToColor(item.name);
+            if (!isDataUri && !img.dataset.failedProxy) {
+                // If proxy fails, try direct as a fallback (though html2canvas might still fail later)
+                img.dataset.failedProxy = 'true';
+                img.removeAttribute('crossOrigin');
+                img.src = item.img;
+            } else {
+                // If direct fails too, convert to text-only
+                img.remove();
+                el.classList.add('tier-item--text-only');
+                el.style.borderLeftColor = stringToColor(item.name);
+            }
         };
         el.appendChild(img);
     } else {

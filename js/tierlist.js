@@ -28,6 +28,22 @@ export function initTierList(data) {
         window.location.href = window.location.origin + window.location.pathname;
     });
 
+    // "Edit Tierlist" button — returns to organizer with CURRENT items
+    $('#edit-tierlist-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        const state = getTierListState();
+        
+        // Flatten all items from tiers and pool into a single array
+        const allItems = [];
+        Object.values(state.tiers).forEach(tierArr => allItems.push(...tierArr));
+        allItems.push(...state.unranked);
+        
+        // Dynamically import organizer to avoid circular dependency issues
+        import('./organizer.js').then(module => {
+            module.loadIntoOrganizer(state.topic, allItems);
+        });
+    });
+
     // Populate item pool
     const pool = $('#item-pool');
     pool.innerHTML = '';
