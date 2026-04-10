@@ -7,6 +7,8 @@
 Build a topic, generate a link, and let your group rank everything from S to F.  
 One-click image downloads and optional Discord integration — zero sign-ups, zero cost.
 
+🌐 **Try it out live at [https://tlf.sensei.lol](https://tlf.sensei.lol)**
+
 [How it works](#how-it-works) · [Features](#features) · [Tech Stack](#tech-stack) · [FAQ](#faq)
 
 </div>
@@ -33,7 +35,7 @@ Everything runs through a single sharable URL. When the organizer creates a topi
 
 The link looks like:
 ```
-https://yourdomain.com/#data=N4IgLg9gJgpgTgYQ...
+https://tlf.sensei.lol/#data=N4IgLg9gJgpgTgYQ...
 ```
 
 Under the hood, the topic data is compressed with [LZ-String](https://pieroxy.net/blog/pages/lz-string/index.html) and encoded as a URL fragment (`#`). The fragment never even hits the hosting server — it stays entirely in the browser.
@@ -66,7 +68,7 @@ Enter what everyone is ranking. "Fast Food Chains", "Horror Movies", "Programmin
 </td>
 <td>
 <strong>Items</strong><br>
-Add the things to rank. You can add them one at a time (with optional image URLs) or paste a bulk list. Items can be reordered by dragging.
+Add the things to rank. You can add them one at a time (with automatic Wikipedia image searching), paste a bulk list, or even upload a full CSV with names & image URLs. Items can be reordered by dragging.
 </td>
 </tr>
 <tr>
@@ -85,7 +87,7 @@ You can also click <strong>"Open Tier List"</strong> to jump straight into ranki
 
 1. **Click the link** — the tier list loads instantly with the topic and items ready to go.
 2. **Enter your name** — it starts blank every time, so there's no confusion about who's ranking.
-3. **Drag items into tiers** — S (best) through F (worst). Smooth drag-and-drop powered by [SortableJS](https://sortablejs.github.io/Sortable/). Works on mobile too.
+3. **Drag items into tiers** — S (best) through F (worst). Smooth drag-and-drop powered by [SortableJS](https://sortablejs.github.io/Sortable/) and an accessible Tap-to-Move feature for mobile touchscreen users.
 4. **Add custom items** — see something missing? Hit "+ Add Custom Item" and throw it in.
 5. **Share your results:**
    - 💾 **Download Image** — saves a PNG of your completed tier list with your name, the topic, and branding. Always available.
@@ -102,7 +104,9 @@ You can also click <strong>"Open Tier List"</strong> to jump straight into ranki
 | 💬 Discord Integration | Optional one-click posting via webhooks — no bot needed |
 | 🔗 Magic Links | All data encoded in the URL — no server, no database |
 | ➕ Custom Items | Participants can add their own items to the ranking |
-| 📋 Bulk Add | Paste a list of items instead of adding one-by-one |
+| 📋 Bulk Add | Paste a list of items, or upload a CSV file with names & URLs |
+| 🔍 Image Search | Automatically fetch image URLs from Wikipedia when adding items |
+| 👆 Tap-to-Move | Accessible mobile tiering: tap an item, then tap a destination row |
 | 🎊 Confetti | Because sharing your tier list deserves a celebration |
 | 📱 Responsive | Works on desktop, tablet, and phone |
 | 🔒 Privacy | Webhook URL is obfuscated in the link, name is never stored remotely |
