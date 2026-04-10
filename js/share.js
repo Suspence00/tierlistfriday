@@ -27,8 +27,13 @@ export function initShare(hasWebhook) {
 function validateState() {
     const state = getTierListState();
 
+    const status = $('#share-status');
+    status.textContent = '';
+
     const totalRanked = Object.values(state.tiers).reduce((sum, arr) => sum + arr.length, 0);
     if (totalRanked === 0) {
+        status.textContent = 'Rank at least one item before sharing!';
+        status.className = 'status-msg error';
         showToast('Rank at least one item before sharing!', 'error');
         return null;
     }
@@ -38,6 +43,9 @@ function validateState() {
         nameInput.focus();
         nameInput.style.borderColor = 'var(--error)';
         setTimeout(() => nameInput.style.borderColor = '', 2000);
+        status.textContent = '❗ Enter your name at the top to enable saving/sharing!';
+        status.className = 'status-msg error';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         showToast('Enter your name first!', 'error');
         return null;
     }
@@ -155,7 +163,7 @@ async function shareToDiscord() {
             username: 'Tierlist Friday',
             embeds: [{
                 title: `🏆 ${state.name}'s Tier List`,
-                description: `**Topic:** ${state.topic}\n\n[Make your own tier list here](${window.location.href})`,
+                description: `**Topic:** ${state.topic}\n\n[Add your Entry](${window.location.href})`,
                 color: 0xe8573a,
                 image: { url: 'attachment://tierlist_' + state.name.replace(/\s+/g, '_') + '.png' },
                 footer: { text: 'Tierlist Friday' },

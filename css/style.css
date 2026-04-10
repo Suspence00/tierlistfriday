@@ -762,9 +762,12 @@ textarea {
     gap: var(--space-lg);
 }
 
-.share-bar .btn-hero {
-    width: auto;
-    min-width: 200px;
+.share-bar .btn-share {
+    flex: 1;
+    min-width: 220px;
+    height: 54px;
+    font-size: 1.05rem;
+    padding: 0 var(--space-xl);
 }
 
 .share-bar .status-msg {
@@ -777,9 +780,7 @@ textarea {
     align-items: center;
 }
 
-.btn-share {
-    min-width: 180px;
-}
+
 
 .share-btn-text {
     pointer-events: none;
@@ -920,15 +921,11 @@ textarea {
         align-items: stretch;
     }
 
-    .btn-share {
+    .share-bar .btn-share {
         min-width: 0;
         flex: 1;
-        padding: var(--space-sm);
+        padding: 0 var(--space-xs);
         font-size: 0.85rem;
-    }
-
-    .share-bar .btn-hero {
-        font-size: 0.85rem;
-        padding: var(--space-sm);
+        height: 44px;
     }
 }
