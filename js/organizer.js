@@ -5,6 +5,7 @@
 import { $, showToast, generateSessionURL, copyToClipboard } from './utils.js';
 
 let items = []; // { name: string, img?: string }
+let eventsBound = false;
 
 /**
  * Initialize the organizer view.
@@ -22,6 +23,10 @@ export function initOrganizer() {
 export function loadIntoOrganizer(topic, initialItems) {
     $('#topic-name').value = topic;
     items = initialItems;
+    
+    // Make sure events are bound if we skipped initOrganizer (i.e. direct link to tier list)
+    bindEvents();
+    
     renderItems();
     updateItemCount();
 
@@ -46,6 +51,9 @@ function saveWebhook() {
 }
 
 function bindEvents() {
+    if (eventsBound) return;
+    eventsBound = true;
+
     // Webhook test
     $('#test-webhook-btn').addEventListener('click', testWebhook);
     $('#webhook-url').addEventListener('change', saveWebhook);
@@ -128,6 +136,22 @@ function addItem() {
     renderItems();
 }
 
+function editItem(index) {
+    const item = items[index];
+    
+    // Remove it from the list
+    items.splice(index, 1);
+    
+    // Put its data back into the form fields
+    $('#new-item-name').value = item.name;
+    $('#new-item-image').value = item.img || '';
+    
+    // Focus to let them edit
+    $('#new-item-name').focus();
+    
+    renderItems();
+}
+
 function removeItem(index) {
     items.splice(index, 1);
     renderItems();
@@ -206,8 +230,12 @@ function renderItems() {
             ${item.img ? `<img class="item-entry-thumb" src="${escapeAttr(item.img)}" alt="" onerror="this.style.display='none'">` : ''}
             <span class="item-entry-name">${escapeHTML(item.name)}</span>
             ${item.img ? `<span class="item-entry-img" title="${escapeAttr(item.img)}">${truncate(item.img, 30)}</span>` : ''}
-            <button class="btn btn-danger" data-idx="${idx}" title="Remove">✕</button>
+            <div style="display:flex; gap:4px; margin-left:auto;">
+                <button class="btn btn-edit" data-idx="${idx}" title="Edit" style="background:transparent; border:none; opacity:0.5; cursor:pointer;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5">✏️</button>
+                <button class="btn btn-danger" data-idx="${idx}" title="Remove">✕</button>
+            </div>
         `;
+        row.querySelector('.btn-edit').addEventListener('click', () => editItem(idx));
         row.querySelector('.btn-danger').addEventListener('click', () => removeItem(idx));
         list.appendChild(row);
     });
