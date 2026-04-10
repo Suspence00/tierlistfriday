@@ -113,7 +113,8 @@ export function createItemElement(item) {
         if (!isDataUri) img.crossOrigin = 'anonymous';
         
         // Use proxy to ensure we get CORS headers so html2canvas doesn't fail
-        img.src = isDataUri ? item.img : 'https://api.allorigins.win/raw?url=' + encodeURIComponent(item.img);
+        // wsrv.nl is a lightning fast Cloudflare-backed image proxy specifically for cases like this
+        img.src = isDataUri ? item.img : 'https://wsrv.nl/?url=' + encodeURIComponent(item.img);
         img.alt = item.name;
         img.draggable = false;
         
