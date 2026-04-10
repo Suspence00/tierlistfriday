@@ -155,7 +155,7 @@ async function shareToDiscord() {
             username: 'Tierlist Friday',
             embeds: [{
                 title: `🏆 ${state.name}'s Tier List`,
-                description: `**Topic:** ${state.topic}`,
+                description: `**Topic:** ${state.topic}\n\n[Make your own tier list here](${window.location.href})`,
                 color: 0xe8573a,
                 image: { url: 'attachment://tierlist_' + state.name.replace(/\s+/g, '_') + '.png' },
                 footer: { text: 'Tierlist Friday' },
