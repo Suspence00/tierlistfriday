@@ -2,7 +2,7 @@
    tierlist.js — Drag-and-drop tier ranking for participants
    ============================================================ */
 
-import { $, $$, showToast, createItemElement } from './utils.js';
+import { $, $$, showToast, createItemElement, autoFindImage } from './utils.js';
 
 let sessionData = null;
 
@@ -113,6 +113,31 @@ function bindCustomItemEvents() {
         nameInput.value = '';
         imgInput.value = '';
     });
+
+    const searchBtn = $('#custom-search-image-btn');
+    if (searchBtn) {
+        searchBtn.addEventListener('click', async () => {
+            const name = nameInput.value.trim();
+            if (!name) {
+                showToast('Enter an item name first to search for an image.', 'error');
+                nameInput.focus();
+                return;
+            }
+
+            const originalText = searchBtn.textContent;
+            searchBtn.textContent = '⏳';
+            searchBtn.disabled = true;
+
+            const url = await autoFindImage(name);
+            if (url) {
+                imgInput.value = url;
+                showToast('Image found!', 'success');
+            }
+            
+            searchBtn.textContent = originalText;
+            searchBtn.disabled = false;
+        });
+    }
 
     confirmBtn.addEventListener('click', addCustomItem);
     nameInput.addEventListener('keydown', (e) => {

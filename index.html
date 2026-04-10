@@ -73,11 +73,19 @@
                 
                 <div class="add-item-row">
                     <input type="text" id="new-item-name" placeholder="Item name" maxlength="60" autocomplete="off">
-                    <input type="url" id="new-item-image" placeholder="Image URL (optional)" autocomplete="off">
+                    <div style="display: flex; gap: var(--space-sm); flex: 3;">
+                        <input type="url" id="new-item-image" placeholder="Image URL (optional)" autocomplete="off" style="flex: 1; min-width: 0;">
+                        <button id="search-image-btn" class="btn btn-secondary" title="Search Wikipedia for an image" style="padding: 0 16px;">🔍 Auto</button>
+                    </div>
                     <button id="add-item-btn" class="btn btn-primary">+ Add</button>
                 </div>
                 <div class="bulk-add-section">
-                    <button id="bulk-add-toggle" class="btn btn-ghost">Bulk Add (paste a list)</button>
+                    <div style="display: flex; gap: var(--space-sm); align-items: center; margin-bottom: var(--space-sm);">
+                        <button id="bulk-add-toggle" class="btn btn-ghost">Bulk Add (paste a list)</button>
+                        <span style="color: var(--text-muted); font-size: 0.875rem;">or</span>
+                        <label for="csv-upload" class="btn btn-ghost" style="cursor: pointer; padding: 6px 12px; border: 1px dashed rgba(255, 255, 255, 0.2); border-radius: 4px; font-size: 0.875rem;" title="CSV format: name, image_url">📄 Upload CSV</label>
+                        <input type="file" id="csv-upload" accept=".csv" style="display: none;">
+                    </div>
                     <div id="bulk-add-area" class="hidden">
                         <textarea id="bulk-add-text" rows="6" placeholder="One item per line&#10;McDonald's&#10;Burger King&#10;Wendy's&#10;Taco Bell"></textarea>
                         <button id="bulk-add-btn" class="btn btn-secondary">Add All</button>
@@ -171,7 +179,10 @@
                 </div>
                 <div id="custom-item-form" class="custom-item-form hidden">
                     <input type="text" id="custom-item-name" placeholder="Item name" maxlength="60" autocomplete="off">
-                    <input type="url" id="custom-item-image" placeholder="Image URL (optional)" autocomplete="off">
+                    <div style="display: flex; gap: var(--space-sm); flex: 1;">
+                        <input type="url" id="custom-item-image" placeholder="Image URL (optional)" autocomplete="off" style="flex: 1; min-width: 0;">
+                        <button id="custom-search-image-btn" class="btn btn-secondary btn-sm" title="Search Wikipedia for an image">🔍</button>
+                    </div>
                     <button id="custom-item-add-btn" class="btn btn-secondary btn-sm">Add</button>
                     <button id="custom-item-cancel-btn" class="btn btn-ghost btn-sm">Cancel</button>
                 </div>

@@ -2,7 +2,7 @@
    organizer.js — Topic builder, webhook config, link generator
    ============================================================ */
 
-import { $, showToast, generateSessionURL, copyToClipboard } from './utils.js';
+import { $, showToast, generateSessionURL, copyToClipboard, autoFindImage } from './utils.js';
 
 let items = []; // { name: string, img?: string }
 let eventsBound = false;
@@ -63,10 +63,14 @@ function bindEvents() {
     $('#new-item-name').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') addItem();
     });
+    const searchBtn = $('#search-image-btn');
+    if (searchBtn) searchBtn.addEventListener('click', handleSearchImage);
 
     // Bulk add
     $('#bulk-add-toggle').addEventListener('click', toggleBulkAdd);
     $('#bulk-add-btn').addEventListener('click', bulkAdd);
+    const csvInput = $('#csv-upload');
+    if (csvInput) csvInput.addEventListener('change', handleCSVUpload);
 
     // Generate link
     $('#generate-link-btn').addEventListener('click', generateLink);
@@ -136,6 +140,32 @@ function addItem() {
     renderItems();
 }
 
+async function handleSearchImage() {
+    const nameInput = $('#new-item-name');
+    const imgInput = $('#new-item-image');
+    const name = nameInput.value.trim();
+
+    if (!name) {
+        showToast('Enter an item name first to search for an image.', 'error');
+        nameInput.focus();
+        return;
+    }
+
+    const btn = $('#search-image-btn');
+    const originalText = btn.textContent;
+    btn.textContent = '⏳...';
+    btn.disabled = true;
+
+    const url = await autoFindImage(name);
+    if (url) {
+        imgInput.value = url;
+        showToast('Image found!', 'success');
+    }
+    
+    btn.textContent = originalText;
+    btn.disabled = false;
+}
+
 function editItem(index) {
     const item = items[index];
     
@@ -188,6 +218,95 @@ function bulkAdd() {
     renderItems();
 
     let msg = `Added ${added} item${added !== 1 ? 's' : ''}`;
+    if (skipped > 0) msg += ` (${skipped} duplicate${skipped !== 1 ? 's' : ''} skipped)`;
+    showToast(msg, added > 0 ? 'success' : 'error');
+}
+
+function handleCSVUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const text = event.target.result;
+        parseCSVAndAddItems(text);
+        e.target.value = ''; // Reset input
+    };
+    reader.readAsText(file);
+}
+
+function parseCSVAndAddItems(text) {
+    flushPendingItem();
+
+    const rows = [];
+    let currentRow = [];
+    let currentCell = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        if (inQuotes) {
+            if (char === '"' && text[i+1] === '"') {
+                currentCell += '"';
+                i++;
+            } else if (char === '"') {
+                inQuotes = false;
+            } else {
+                currentCell += char;
+            }
+        } else {
+            if (char === '"') {
+                inQuotes = true;
+            } else if (char === ',') {
+                currentRow.push(currentCell.trim());
+                currentCell = '';
+            } else if (char === '\n' || char === '\r') {
+                if (currentCell !== '' || currentRow.length > 0) {
+                    currentRow.push(currentCell.trim());
+                    rows.push(currentRow);
+                }
+                currentRow = [];
+                currentCell = '';
+                if (char === '\r' && text[i+1] === '\n') i++;
+            } else {
+                currentCell += char;
+            }
+        }
+    }
+    if (currentCell !== '' || currentRow.length > 0) {
+        currentRow.push(currentCell.trim());
+        rows.push(currentRow);
+    }
+
+    let added = 0;
+    let skipped = 0;
+
+    let startIndex = 0;
+    if (rows.length > 0 && rows[0].length >= 1) {
+        const firstCell = rows[0][0].toLowerCase();
+        if (firstCell === 'name' || firstCell === 'item' || firstCell === 'title') {
+            startIndex = 1;
+        }
+    }
+
+    for (let i = startIndex; i < rows.length; i++) {
+        const row = rows[i];
+        if (row.length === 0 || !row[0]) continue;
+        
+        const name = row[0];
+        const img = row.length > 1 && row[1] ? row[1] : undefined;
+
+        if (!items.some(k => k.name.toLowerCase() === name.toLowerCase())) {
+            items.push({ name, img });
+            added++;
+        } else {
+            skipped++;
+        }
+    }
+
+    renderItems();
+
+    let msg = `Added ${added} item${added !== 1 ? 's' : ''} from CSV`;
     if (skipped > 0) msg += ` (${skipped} duplicate${skipped !== 1 ? 's' : ''} skipped)`;
     showToast(msg, added > 0 ? 'success' : 'error');
 }

@@ -172,3 +172,35 @@ export async function copyToClipboard(text) {
         }
     }
 }
+
+/**
+ * Auto-find an image URL for a given search term using Wikipedia API.
+ * If not found, falls back to opening Google Images in a new tab.
+ * @param {string} term 
+ * @returns {Promise<string|null>} The image URL, or null if not found
+ */
+export async function autoFindImage(term) {
+    if (!term) return null;
+    
+    try {
+        const url = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(term)}&gsrlimit=1&prop=pageimages&piprop=original&format=json&origin=*`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        
+        if (data && data.query && data.query.pages) {
+            const pages = Object.values(data.query.pages);
+            if (pages.length > 0 && pages[0].original && pages[0].original.source) {
+                return pages[0].original.source;
+            }
+        }
+    } catch(e) {
+        console.error('Wikipedia search failed:', e);
+    }
+    
+    // Fallback
+    showToast('No reliable image found. Opening Google...', 'warning');
+    setTimeout(() => {
+        window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(term)}`, '_blank');
+    }, 1500);
+    return null;
+}
