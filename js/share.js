@@ -133,8 +133,11 @@ async function generateImage(state) {
         scale: 2,
         useCORS: true,
         logging: false,
-        width: captureZone.scrollWidth,
-        height: captureZone.scrollHeight,
+        width: 900,
+        windowWidth: 900,
+        onclone: (clonedDoc) => {
+            clonedDoc.body.classList.add('is-capturing');
+        }
     });
 
     // --- RESTORE PHASE ---

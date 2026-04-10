@@ -929,3 +929,33 @@ textarea {
         height: 44px;
     }
 }
+
+/* --- Capture-specific overrides (to force desktop layout on mobile) --- */
+.is-capturing #tier-capture-zone {
+    width: 900px !important;
+}
+
+.is-capturing .tier-label {
+    width: 100px !important;
+    min-width: 100px !important;
+    font-size: 2.2rem !important;
+}
+
+.is-capturing .tier-item {
+    width: 110px !important;
+    min-height: 84px !important;
+}
+
+.is-capturing .tier-item-img {
+    width: 98px !important;
+    height: 72px !important;
+}
+
+.is-capturing .tier-item-name {
+    font-size: 0.8rem !important;
+}
+
+.is-capturing .capture-header {
+    padding: var(--space-md) var(--space-lg) !important;
+    gap: var(--space-lg) !important;
+}
