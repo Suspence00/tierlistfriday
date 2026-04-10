@@ -139,17 +139,17 @@ function addItem() {
 function editItem(index) {
     const item = items[index];
     
-    // Remove it from the list
-    items.splice(index, 1);
-    
-    // Put its data back into the form fields
-    $('#new-item-name').value = item.name;
-    $('#new-item-image').value = item.img || '';
-    
-    // Focus to let them edit
-    $('#new-item-name').focus();
-    
-    renderItems();
+    const newName = prompt('Edit item name:', item.name);
+    if (newName !== null) {
+        const newImg = prompt('Edit item image URL (optional):', item.img || '');
+        if (newImg !== null) {
+            items[index] = { 
+                name: newName.trim() || 'Unnamed Item', 
+                img: newImg.trim() || undefined 
+            };
+            renderItems();
+        }
+    }
 }
 
 function removeItem(index) {

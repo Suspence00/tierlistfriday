@@ -113,7 +113,7 @@ export function createItemElement(item) {
         if (!isDataUri) img.crossOrigin = 'anonymous';
         
         // Use proxy to ensure we get CORS headers so html2canvas doesn't fail
-        img.src = isDataUri ? item.img : 'https://corsproxy.io/?' + encodeURIComponent(item.img);
+        img.src = isDataUri ? item.img : 'https://api.allorigins.win/raw?url=' + encodeURIComponent(item.img);
         img.alt = item.name;
         img.draggable = false;
         

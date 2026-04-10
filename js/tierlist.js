@@ -172,6 +172,7 @@ export function getTierListState() {
 
     const unranked = Array.from($$('#item-pool .tier-item')).map(el => ({
         name: el.dataset.name,
+        img: el.dataset.img || undefined,
     }));
 
     return {
